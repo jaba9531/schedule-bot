@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/jaba9531/schedule-bot#readme",
   "dependencies": {
-    "discord.js": "^11.5.1"
+    "discord.js": "^11.5.1",
+    "sqlite3": "^4.1.0"
   }
 }
