@@ -1,4 +1,4 @@
-const { addUser, removeUser, addDate, getInfo } = require('../controller/index.js');
+const { addUser, removeUser, addDate, getInfo, scheduleEvent, toggleNotifications, help, deleteEvent, addEventDescription } = require('../controller/index.js');
 const { checkDate } = itemValidators = require("../utils/validation/index.js");
 
 const messageRouter = function messageRouter(msg, channel) {
@@ -7,25 +7,51 @@ const messageRouter = function messageRouter(msg, channel) {
   const firstWord = splitMsg[0].substr(1);
   const secondWord = splitMsg[1];
   const thirdWord = splitMsg[2];
+  let description;
   let eventName;
   if (firstLetter === '!') {
     switch(true) {
+      // Schedule New Event
       case (firstWord === 'schedule') :
+        description = '';
         eventName = msg.content.substr(firstWord.length + 2);
-        scheduleEvent(eventName, channel);
+        if (!secondWord) {
+          channel.send('Please enter an event name');
+          break;
+        }
+        if (thirdWord) {
+          eventName = msg.content.substr(firstWord.length + 2, secondWord.length);
+          description = msg.content.substr(firstWord.length + secondWord.length + 3);
+        }
+        scheduleEvent(eventName, description, channel);
         break;
 
+      // Get Help Commands
+      case (firstWord === 'help') :
+        help(channel);
+        break;
+
+      // Add/Remove User From Event
       case (secondWord === 'add' || secondWord === 'remove'):
         eventName = firstWord;
         const user = thirdWord;
         let userId;
+        if (!user) {
+          channel.send('Please specify a user');
+          break;
+        }
         if (user.substr(0, 2) === '<@' && user.substr(user.length - 1 === ">")) {
           userId = user.substr(2, user.length - 3);
         }
-        const username = msg.guild.members.get(userId).user.username;
+        if (!userId) {
+          channel.send('User not found');
+          break;
+        }
+        const username = msg.guild.members.get(userId.slice(1)).user.username;
         secondWord === 'add' ? addUser(username, eventName, channel) : removeUser(username, eventName, channel);
         break;
 
+      // Add Date To Event
       case (secondWord === 'date') :
         const date = msg.content.substr(secondWord.length + firstWord.length + 3);
         eventName = firstWord;
@@ -33,14 +59,38 @@ const messageRouter = function messageRouter(msg, channel) {
           if (result) {
             addDate(eventName, channel, date);
           } else {
-            channel.send(':x: invalid date, please use this format: **mm[/.-]dd[/.-]yyyy hh:mm:ss am|pm**');
+            channel.send(':x: invalid date, please use this format in PST: **mm[/.-]dd[/.-]yyyy hh:mm:ss am|pm**');
           }
         });
         break;
       
+      // Get Event Info
       case (secondWord === 'info') :
         eventName = firstWord;
         getInfo(eventName, channel);
+        break;
+
+      // Toggle Event Notifications
+      case (secondWord === 'toggle_notifications') :
+        eventName = firstWord;
+        toggleNotifications(eventName, channel);
+        break;
+
+      // Add Event Description
+      case (secondWord === 'description') :
+        eventName = firstWord;
+        if (!thirdWord) {
+          channel.send('Please enter a valid event description');
+          break;
+        }
+        description = msg.content.substr(firstWord.length + secondWord.length + 3);
+        addEventDescription(eventName, description, channel);
+        break;
+
+      // Delete Event
+      case (secondWord === 'delete'):
+        eventName = firstWord;
+        deleteEvent(eventName, channel);
         break;
 
       default:
