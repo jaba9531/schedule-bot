@@ -44,7 +44,11 @@ const messageRouter = function messageRouter(msg, channel) {
           userId = user.substr(2, user.length - 3);
         }
         if (!userId) {
-          channel.send('User not found');
+          channel.send(':x: User not found');
+          break;
+        }
+        if (!msg.guild.members.get(userId.slice(1))) {
+          channel.send(':x: User not found');
           break;
         }
         const username = msg.guild.members.get(userId.slice(1)).user.username;
@@ -71,10 +75,11 @@ const messageRouter = function messageRouter(msg, channel) {
         break;
 
       // Toggle Event Notifications
-      case (secondWord === 'toggle_notifications') :
-        eventName = firstWord;
-        toggleNotifications(eventName, channel);
-        break;
+      // Consider getting rid of this feature
+      // case (secondWord === 'toggle_notifications') :
+      //   eventName = firstWord;
+      //   toggleNotifications(eventName, channel);
+      //   break;
 
       // Add Event Description
       case (secondWord === 'description') :
@@ -87,8 +92,8 @@ const messageRouter = function messageRouter(msg, channel) {
         addEventDescription(eventName, description, channel);
         break;
 
-      // Delete Event
-      case (secondWord === 'delete'):
+      // Remove Event
+      case (secondWord === 'cancel'):
         eventName = firstWord;
         deleteEvent(eventName, channel);
         break;
