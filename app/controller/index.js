@@ -231,6 +231,9 @@ const messageController = {
     const output = table(data, options);
     let formattedOutput = "```" + `${output}` + "```";
     channel.send(formattedOutput);
+  },
+  saySup(channel) {
+    channel.send(`Sup`);
   }
 };
 
