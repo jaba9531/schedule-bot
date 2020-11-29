@@ -11,7 +11,7 @@ const messageController = {
         }
         console.error(err.message);
       } else {
-        channel.send(`:white_check_mark: Successfully scheduled event: **${eventName}**`);
+        channel.send(`:white_check_mark: Successfully scheduled event: **${eventName} ${description}**`);
       }
     });
   },
@@ -24,7 +24,7 @@ const messageController = {
           if (err) {
             console.error(err.message);
           } else {
-            channel.send(`:white_check_mark: Successfully removed event: **${eventName}**`);
+            channel.send(`:white_check_mark: Successfully cancelled event: **${eventName}**`);
           }
         });
       }
@@ -128,7 +128,7 @@ const messageController = {
               console.error(err.message);
             } else {
               notificationService.init(channel);
-              channel.send(`:white_check_mark: Successfully turned **ON** user tagged notifications for **${eventName}**`);
+              channel.send(`:white_check_mark: Successfully turned **ON** user mentions for **${eventName}**`);
             }
           });
         }
@@ -148,13 +148,12 @@ const messageController = {
     const data = [
       ['Command', 'Syntax'],
       ['Schedule a New Event', '!schedule [EVENT_NAME] [DESCRIPTION]'],
-      ['Remove Event', '!remove [EVENT_NAME]'],
+      ['Cancel Event', '![EVENT_NAME] cancel'],
       ['Add Event Description', '![EVENT_NAME] description [DESCRIPTION]'],
       ['Add User to Event', '![EVENT_NAME] add [@USERNAME]'],
       ['Remove User from Event', '![EVENT_NAME] remove [@USERNAME]'],
-      ['Add/Update Date for Event(PST)', '![EVENT_NAME] date [mm[/.-]dd[/.-]yyyy hh:mm:ss am|pm]'],
+      ['Add/Update Date for Event(Currently MST)', '![EVENT_NAME] date [mm[/.-]dd[/.-]yyyy hh:mm:ss am|pm]'],
       ['Get Event Info', '![EVENT_NAME] info'],
-      ['Toggle User Tagged Notifications', '![EVENT_NAME] toggle_notifications'],
     ];
     options = {
       border: getBorderCharacters(`void`),
