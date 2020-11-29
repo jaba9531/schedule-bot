@@ -85,12 +85,19 @@ const messageController = {
       } else if (!row.length) {
         channel.send(`**${eventName}** not found`);
       } else {
-        const { id, name, description, date } = row[0];
+        const { id, name, description } = row[0];
+        let { date } = row[0];
         db.all(`SELECT * FROM users_events WHERE event_id = ${id}`, (err, row) => {
-          const users = row.map(u => u.username).join(", ");
+          let users = row.map(u => u.username).join(", ");
+          if (!users) {
+            users = "none";
+          }
+          if (!date) {
+            date = "none";
+          }
           const data = [
-            ['Event Name', `${name}`],
-            ['Description', `${description}`],
+            ['Event', `${name} ${description}`],
+            // ['Description', `${description}`],
             ['Users', `${users}`],
             ['Date', `${date}`]
           ];
