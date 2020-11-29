@@ -1,5 +1,6 @@
 const { addUser, removeUser, addDate, getInfo, scheduleEvent, toggleNotifications, help, deleteEvent, addEventDescription, displayCalendar } = require('../controller/index.js');
 const { checkDate } = itemValidators = require("../utils/validation/index.js");
+const { CHANNEL_NAME } = require("../config");
 
 const messageRouter = function messageRouter(msg, channel) {
   const splitMsg = msg.content.split(" ");
@@ -9,7 +10,7 @@ const messageRouter = function messageRouter(msg, channel) {
   const thirdWord = splitMsg[2];
   let description;
   let eventName;
-  if (firstLetter === '!') {
+  if (firstLetter === '!' && msg.channel.name === CHANNEL_NAME) {
     switch(true) {
       // Display Calendar
       case (firstWord === "calendar") :
