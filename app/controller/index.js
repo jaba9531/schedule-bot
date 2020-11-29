@@ -37,65 +37,98 @@ const messageController = {
     });
   },
   deleteEvent(eventName, channel) {
-    db.all(`DELETE FROM users_events WHERE event_id = (SELECT id FROM events WHERE name = '${eventName}')`, (err) => {
+    db.all(`SELECT * FROM events WHERE name = '${eventName}'`, (err, row) => {
       if (err) {
         console.error(err.message);
+      } else if (!row.length) {
+        channel.send(`:x: **${eventName}** not found`);
       } else {
-        db.all(`DELETE FROM events WHERE name = '${eventName}'`, (err) => {
+        db.all(`DELETE FROM users_events WHERE event_id = (SELECT id FROM events WHERE name = '${eventName}')`, (err) => {
           if (err) {
             console.error(err.message);
           } else {
-            channel.send(`:white_check_mark: Successfully cancelled event: **${eventName}**`);
+            db.all(`DELETE FROM events WHERE name = '${eventName}'`, (err) => {
+              if (err) {
+                console.error(err.message);
+              } else {
+                channel.send(`:white_check_mark: Successfully cancelled event: **${eventName}**`);
+              }
+            });
           }
         });
       }
     });
   },
   addUser(username, eventName, channel) {
-    db.all(`SELECT username, event_id FROM users_events WHERE username = '${username}' AND event_id = (SELECT id FROM events WHERE name = '${eventName}')`, (err, row) => {
+    db.all(`SELECT * FROM events WHERE name = '${eventName}'`, (err, row) => {
       if (err) {
         console.error(err.message);
+      } else if (!row.length) {
+        channel.send(`:x: **${eventName}** not found`);
       } else {
-        if (row.length) {
-          channel.send(`:x: **${username}** has already been added to **${eventName}**`);
-        } else {
-          db.all(`INSERT INTO users_events (username, event_id) VALUES ('${username}', (SELECT id FROM events WHERE name = '${eventName}'))`, (err, row) => {
-            if (err) {
-              console.error(err.message);
+        db.all(`SELECT username, event_id FROM users_events WHERE username = '${username}' AND event_id = (SELECT id FROM events WHERE name = '${eventName}')`, (err, row) => {
+          if (err) {
+            console.error(err.message);
+          } else {
+            if (row.length) {
+              channel.send(`:x: **${username}** has already been added to **${eventName}**`);
             } else {
-              channel.send(`:white_check_mark: Successfully added **${username}** to **${eventName}**`);
+              db.all(`INSERT INTO users_events (username, event_id) VALUES ('${username}', (SELECT id FROM events WHERE name = '${eventName}'))`, (err, row) => {
+                if (err) {
+                  console.error(err.message);
+                } else {
+                  channel.send(`:white_check_mark: Successfully added **${username}** to **${eventName}**`);
+                  notificationService.init(channel);
+                }
+              });
             }
-          });
-        }
+          }
+        });
       }
     });
   },
   removeUser(username, eventName, channel) {
-    db.all(`SELECT username, event_id FROM users_events WHERE username = '${username}' AND event_id = (SELECT id FROM events WHERE name = '${eventName}')`, (err, row) => {
+    db.all(`SELECT * FROM events WHERE name = '${eventName}'`, (err, row) => {
       if (err) {
         console.error(err.message);
+      } else if (!row.length) {
+        channel.send(`:x: **${eventName}** not found`);
       } else {
-        if (!row.length) {
-          channel.send(`:x: **${username}** not found in **${eventName}**`);
-        } else {
-          db.all(`DELETE FROM users_events WHERE username = '${username}' AND event_id = (SELECT id FROM events WHERE name = '${eventName}')`, (err, row) => {
-            if (err) {
-              console.error(err.message);
+        db.all(`SELECT username, event_id FROM users_events WHERE username = '${username}' AND event_id = (SELECT id FROM events WHERE name = '${eventName}')`, (err, row) => {
+          if (err) {
+            console.error(err.message);
+          } else {
+            if (!row.length) {
+              channel.send(`:x: **${username}** not found in **${eventName}**`);
             } else {
-              channel.send(`:white_check_mark: Successfully removed **${username}** from **${eventName}**`);
+              db.all(`DELETE FROM users_events WHERE username = '${username}' AND event_id = (SELECT id FROM events WHERE name = '${eventName}')`, (err, row) => {
+                if (err) {
+                  console.error(err.message);
+                } else {
+                  channel.send(`:white_check_mark: Successfully removed **${username}** from **${eventName}**`);
+                }
+              });
             }
-          });
-        }
+          }
+        });
       }
     });
   },
   addDate(eventName, channel, date) {
-    db.all(`UPDATE events SET date = '${date}' WHERE name = '${eventName}'`, (err, row) => {
+    db.all(`SELECT * FROM events WHERE name = '${eventName}'`, (err, row) => {
       if (err) {
         console.error(err.message);
+      } else if (!row.length) {
+        channel.send(`:x: **${eventName}** not found`);
       } else {
-        notificationService.init(channel);
-        channel.send(`:white_check_mark: Successfully scheduled **${eventName}** for **${date}**`);
+        db.all(`UPDATE events SET date = '${date}' WHERE name = '${eventName}'`, (err, row) => {
+          if (err) {
+            console.error(err.message);
+          } else {
+            notificationService.init(channel);
+            channel.send(`:white_check_mark: Successfully scheduled **${eventName}** for **${date}**`);
+          }
+        });
       }
     });
   },
@@ -130,7 +163,7 @@ const messageController = {
           channel.send(formattedOutput);
         });
       }
-    })
+    });
   },
   toggleNotifications(eventName, channel) {
     db.all(`SELECT * FROM events WHERE name = '${eventName}'`, (err, row) => {
@@ -161,14 +194,22 @@ const messageController = {
           });
         }
       }
-    })
+    });
   },
   addEventDescription(eventName, description, channel) {
-    db.all(`UPDATE events SET description = '${description}' WHERE name = '${eventName}'`, (err, row) => {
+    db.all(`SELECT * FROM events WHERE name = '${eventName}'`, (err, row) => {
       if (err) {
         console.error(err.message);
+      } else if (!row.length) {
+        channel.send(`**${eventName}** not found`);
       } else {
-        channel.send(`:white_check_mark: Successfully added description for **${eventName}**`);
+        db.all(`UPDATE events SET description = '${description}' WHERE name = '${eventName}'`, (err, row) => {
+          if (err) {
+            console.error(err.message);
+          } else {
+            channel.send(`:white_check_mark: Successfully added description for **${eventName}**`);
+          }
+        });
       }
     });
   },

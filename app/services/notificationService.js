@@ -23,13 +23,11 @@ const notificationService = {
                 const eventDateMS = new Date(date).getTime();
                 const currentDateMS = new Date().getTime();
                 const eventDescriptor = e.description ? `${e.name} ${e.description}` : e.name;
-                if (e.notifications === "yes") {
-                  guildUserList.forEach((u) => {
-                      if (users.indexOf(u.user.username) !== -1) {
-                          notificationRecipientList.push(`<@${u.user.id}>`)
-                      }
-                  })
-                }
+                guildUserList.forEach((u) => {
+                    if (users.indexOf(u.user.username) !== -1) {
+                        notificationRecipientList.push(`<@${u.user.id}>`)
+                    }
+                })
                 if (eventDateMS > currentDateMS + 300000) {
                   const stringList = notificationRecipientList.join(', ');
                   const timeToSoonNotification = eventDateMS - currentDateMS - UPCOMING_NOTIFICATION_DELAY_MS;
