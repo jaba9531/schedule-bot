@@ -1,4 +1,4 @@
-const { addUser, removeUser, addDate, getInfo, scheduleEvent, toggleNotifications, help, deleteEvent, addEventDescription, displayCalendar } = require('../controller/index.js');
+const { addUser, removeUser, addDate, getInfo, scheduleEvent, toggleNotifications, help, deleteEvent, addEventDescription, displayCalendar, saySup } = require('../controller/index.js');
 const { checkDate } = itemValidators = require("../utils/validation/index.js");
 const { CHANNEL_NAME } = require("../config");
 
@@ -12,6 +12,10 @@ const messageRouter = function messageRouter(msg, channel) {
   let eventName;
   if (firstLetter === '!' && msg.channel.name === CHANNEL_NAME) {
     switch(true) {
+      // Check Pulse
+      case (firstWord === "sup") :
+        saySup(channel);
+        break;
       // Display Calendar
       case (firstWord === "calendar") :
         displayCalendar(channel);
