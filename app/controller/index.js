@@ -3,6 +3,27 @@ const { table, getBorderCharacters, createStream } = require('table');
 const notificationService = require('../services/notificationService.js');
 
 const messageController = {
+  displayCalendar(channel) {
+    db.all(`SELECT * FROM events`, (err, row) => {
+      if (err) {
+        if (err.code === 'SQLITE_CONSTRAINT') {
+          channel.send(`:x: Failed to get events`);
+        }
+        console.error(err.message);
+      } else {
+        const data = [['Event ', ' Time']];
+        row.forEach((event) => {
+          data.push([event.name, event.date || 'none']);
+        });
+        options = {
+          border: getBorderCharacters(`void`),
+        };
+        const output = table(data, options);
+        let formattedOutput = "```" + `${output}` + "```";
+        channel.send(formattedOutput);
+      }
+    });
+  },
   scheduleEvent(eventName, description, channel) {
     db.all(`INSERT INTO events (name, description) VALUES ('${eventName}','${description}')`, (err, row) => {
       if (err) {
@@ -161,6 +182,7 @@ const messageController = {
       ['Remove User from Event', '![EVENT_NAME] remove [@USERNAME]'],
       ['Add/Update Date for Event(Currently MST)', '![EVENT_NAME] date [mm[/.-]dd[/.-]yyyy hh:mm:ss am|pm]'],
       ['Get Event Info', '![EVENT_NAME] info'],
+      ['View Calendar', '!calendar'],
     ];
     options = {
       border: getBorderCharacters(`void`),
