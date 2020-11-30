@@ -11,9 +11,9 @@ const messageController = {
         }
         console.error(err.message);
       } else {
-        const data = [['Event ', ' Time']];
+        const data = [['Event', 'Time']];
         row.forEach((event) => {
-          data.push([event.name, event.date || 'none']);
+          data.push([`${event.name} ${event.description}`, event.date || 'none']);
         });
         options = {
           border: getBorderCharacters(`void`),

@@ -2,24 +2,30 @@ const { addUser, removeUser, addDate, getInfo, scheduleEvent, toggleNotification
 const { checkDate } = itemValidators = require("../utils/validation/index.js");
 const { CHANNEL_NAME } = require("../config");
 
-const messageRouter = function messageRouter(msg, channel) {
+const messageRouter = async function messageRouter(msg, channel) {
   const splitMsg = msg.content.split(" ");
   const firstLetter = msg.content.charAt(0);
   const firstWord = splitMsg[0].substr(1);
   const secondWord = splitMsg[1];
   const thirdWord = splitMsg[2];
+  let guild;
   let description;
   let eventName;
+  if (secondWord === 'add' || secondWord === 'remove') {
+    guild = await msg.guild.fetchMembers();
+  }
   if (firstLetter === '!' && msg.channel.name === CHANNEL_NAME) {
     switch(true) {
       // Check Pulse
       case (firstWord === "sup") :
         saySup(channel);
         break;
+
       // Display Calendar
       case (firstWord === "calendar") :
         displayCalendar(channel);
         break;
+
       // Schedule New Event
       case (firstWord === 'schedule') :
         description = '';
@@ -56,11 +62,11 @@ const messageRouter = function messageRouter(msg, channel) {
           channel.send(':x: User not found');
           break;
         }
-        if (!msg.guild.members.get(userId.slice(1))) {
+        if (!guild.members.get(userId.slice(1))) {
           channel.send(':x: User not found');
           break;
         }
-        const username = msg.guild.members.get(userId.slice(1)).user.username;
+        const username = guild.members.get(userId.slice(1)).user.username;
         secondWord === 'add' ? addUser(username, eventName, channel) : removeUser(username, eventName, channel);
         break;
 
