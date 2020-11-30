@@ -32,7 +32,7 @@ const notificationService = {
                   const stringList = notificationRecipientList.join(', ');
                   const timeToSoonNotification = eventDateMS - currentDateMS - UPCOMING_NOTIFICATION_DELAY_MS;
                   const gameStartingSoon = () => {
-                    channel.send(`**${eventDescriptor}** is starting in one hour! ${stringList}`);
+                    channel.send(`**${eventDescriptor}** is starting soon! ${stringList}`);
                   }
                   if (soonTimers[name]) {
                     clearTimeout(soonTimers[name]);
